@@ -1,13 +1,15 @@
 #include <iostream>
 using namespace std;
 
-void tukar(int *a, int *b) {
+void tukar(int *a, int *b)
+{
     int c = *a;
     *a = *b;
     *b = c;
 }
 
-int main() {
+int main()
+{
     int x, y;
 
     cout << "Masukkan nilai x: ";

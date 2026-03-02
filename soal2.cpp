@@ -2,18 +2,21 @@
 #include <string>
 using namespace std;
 
-struct Mahasiswa {
+struct Mahasiswa
+{
     string nama;
     string nim;
     float ipk;
 };
 
-int main() {
+int main()
+{
     const int jumlah = 5;
     Mahasiswa mhs[jumlah];
 
-    for(int i = 0; i < jumlah; i++) {
-        cout << "Data Mahasiswa ke-" << i+1 << endl;
+    for (int i = 0; i < jumlah; i++)
+    {
+        cout << "Data Mahasiswa ke-" << i + 1 << endl;
         cout << "Nama : ";
         getline(cin, mhs[i].nama);
 
@@ -26,8 +29,10 @@ int main() {
     }
 
     int indeksMax = 0;
-    for(int i = 1; i < jumlah; i++) {
-        if(mhs[i].ipk > mhs[indeksMax].ipk) {
+    for (int i = 1; i < jumlah; i++)
+    {
+        if (mhs[i].ipk > mhs[indeksMax].ipk)
+        {
             indeksMax = i;
         }
     }
