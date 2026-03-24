@@ -52,9 +52,9 @@ void tampilData(Hewan *arr, int n)
     for (int i = 0; i < n; i++)
     {
         cout << (arr + i)->id << "\t"
-            << (arr + i)->nama << "\t\t"
-            << (arr + i)->jenisLayanan << "\t\t\tRp "
-            << (arr + i)->harga << endl;
+             << (arr + i)->nama << "\t\t"
+             << (arr + i)->jenisLayanan << "\t\t\tRp "
+             << (arr + i)->harga << endl;
     }
     cout << "========================================================" << endl;
 }
@@ -88,59 +88,58 @@ void urutkanBerdasarkanID(Hewan *arr, int n)
     }
 }
 
-void fibonacciSearch(Hewan *arr, int n, int target)
+int fibonacciSearch(Hewan *arr, int n, int target)
 {
-    if (n == 0)
-    {
-        cout << "Data kosong!" << endl;
-        return;
-    }
-    urutkanBerdasarkanID(arr, n);
+    // menyiapkan 3 deret Fibonacci awal untuk menentukan rentang pembagian.
+    int fib2 = 0; // F(k-2)
+    int fib1 = 1; // F(k-1)
+    int fib = 1; //F(k)
 
-    int fib2 = 0;
-    int fib1 = 1;
-    int fib = fib2 + fib1;
+    // looping ini mencari bilangan Fibonacci terkecil yang lebih besar atau sama dengan jumlah elemen, dengan tujuan agar tahu ukuran blok data yang akan dibagi.
     while (fib < n)
     {
         fib2 = fib1;
         fib1 = fib;
-        fib = fib2 + fib1;
+        fib = fib1 + fib2;
     }
 
+    // membuat offset untuk menandai batas indeks array bagian kiri yang sudah dibuang.
     int offset = -1;
     int iterasi = 1;
+
+    // membelah array berdasarkan deret Fibonacci selama ukuran rentang (fib) lebih besar dari 1.
     while (fib > 1)
     {
+        // menentukan indeks yang akan dicek, didapat dari offset + F(k-2). fungsi min() mencegah indeks melebihi batas array.
         int i = min(offset + fib2, n - 1);
-        cout << "[Iterasi " << iterasi++ << "] Memeriksa indeks ke-" << i << " (Mencari ID: " << (arr + i)->id << ")" << endl;
-        if ((arr + i)->id < target)
+
+        // kondisi jika data langsung ditemukan di indeks i
+        if ((arr + i)->id == target)
+        {
+            return i;
+        }
+        // kondisi jika target lebih besar dari nilai di indeks i, berarti target ada di bagian KANAN array. Kita buang bagian KIRI dengan menggeser offset ke i.lalu deret Fibonacci mundur 1 langkah (dari F(k) menjadi F(k-1)).
+        else if ((arr + i)->id < target)
         {
             fib = fib1;
             fib1 = fib2;
             fib2 = fib - fib1;
             offset = i;
         }
-        else if ((arr + i)->id > target)
+        // kondisi jika target lebih kecil dari nilai di indeks i, berarti target ada di bagian KIRI array. Offset tetap, tapi area pencarian dipersempit, lalu deret Fibonacci mundur 2 langkah (dari F(k) menjadi F(k-2)).
+        else
         {
             fib = fib2;
             fib1 = fib1 - fib2;
             fib2 = fib - fib1;
         }
-        else
-        {
-            cout << "Nama: " << (arr + i)->nama << " | Layanan: " << (arr + i)->jenisLayanan << " | Harga: Rp" << (arr + i)->harga << endl;
-            return;
-        }
     }
+    // jika loop selesai tapi masih ada 1 elemen tersisa (fib1 == 1), kita cek elemen yang berada persis setelah batas offset terakhir.
+    if (fib1 == 1 && (arr + offset + 1)->id == target)
+        return offset + 1;
 
-    if (fib1 == 1 && offset + 1 < n && (arr + offset + 1)->id == target)
-    {
-        cout << "[Iterasi " << iterasi << "] Memeriksa indeks ke-" << offset + 1 << " (Mencari ID: " << (arr + offset + 1)->id << ")" << endl;
-        cout << "Nama: " << (arr + offset + 1)->nama << " | Layanan: " << (arr + offset + 1)->jenisLayanan << " | Harga: Rp" << (arr + offset + 1)->harga << endl;
-        return;
-    }
-
-    cout << "ID " << target << " tidak ditemukan dalam sistem." << endl;
+    // Return -1 menandakan pencarian selesai dan ID target tidak ditemukan
+    return -1;
 }
 
 void bubbleSort(Hewan *arr, int n)
@@ -197,40 +196,57 @@ int main()
         cout << "Pilih menu: ";
         cin >> pilihan;
 
-        if (pilihan == 1)
+        switch (pilihan)
         {
+        case 1:
             tampilData(dataPawcare, jumlahData);
-        }
-        else if (pilihan == 2)
-        {
+            break;
+        case 2:
             tambahData(dataPawcare, &jumlahData);
-        }
-        else if (pilihan == 3)
+            break;
+        case 3:
         {
             string cariNama;
             cout << "Masukkan Nama: ";
             cin.ignore();
             getline(cin, cariNama);
             linearSearch(dataPawcare, jumlahData, cariNama);
+            break;
         }
-        else if (pilihan == 4)
+        case 4:
         {
             int cariID;
-            cout << "Masukkan ID: ";
+            cout << "Masukkan ID yang dicari: ";
             cin >> cariID;
-            fibonacciSearch(dataPawcare, jumlahData, cariID);
+
+            urutkanBerdasarkanID(dataPawcare, jumlahData);
+
+            int hasil = fibonacciSearch(dataPawcare, jumlahData, cariID);
+
+            if (hasil != -1)
+            {
+                cout << "Data Ditemukan!\n";
+                cout << "Nama: " << (dataPawcare + hasil)->nama << "\n";
+                cout << "Harga: " << (dataPawcare + hasil)->harga << "\n";
+            }
+            else
+            {
+                cout << "ID tidak ditemukan.\n";
+            }
+            break;
         }
-        else if (pilihan == 5)
-        {
+        case 5:
             bubbleSort(dataPawcare, jumlahData);
-        }
-        else if (pilihan == 6)
-        {
+            break;
+        case 6:
             selectionSort(dataPawcare, jumlahData);
-        }
-        else if (pilihan != 0)
-        {
+            break;
+        case 0:
+            cout << "Terima kasih telah menggunakan layanan Pawcare!\n";
+            break;
+        default:
             cout << "Pilihan tidak valid!" << endl;
+            break;
         }
     } while (pilihan != 0);
     return 0;
