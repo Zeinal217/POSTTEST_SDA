@@ -54,26 +54,25 @@ void tampilData(Hewan *arr, int n)
     for (int i = 0; i < n; i++)
     {
         cout << (arr + i)->id << "\t"
-             << (arr + i)->nama << "\t\t"
-             << (arr + i)->jenisLayanan << "\t\t\tRp "
-             << (arr + i)->harga << endl;
+            << (arr + i)->nama << "\t\t"
+            << (arr + i)->jenisLayanan << "\t\t\tRp "
+            << (arr + i)->harga << endl;
     }
     cout << "========================================================" << endl;
 }
 
-void linearSearch(Hewan *arr, int n, string target)
-{
+void linearSearch(Hewan* arr, int n, string target) {
     bool found = false;
-    for (int i = 0; i < n; i++)
-    {
-        if ((arr + i)->nama == target)
-        {
-            cout << "=> Ditemukan: ID " << (arr + i)->id << " | Layanan: " << (arr + i)->jenisLayanan << " | Harga: Rp" << (arr + i)->harga << endl;
+    for (int i = 0; i < n; i++) {
+        cout << "[Iterasi " << i + 1 << "] Mengecek: " << (arr + i)->nama << endl;
+        if ((arr + i)->nama == target) {
+            cout << ">> Ditemukan! Melakukan swap ke posisi depan (indeks 0)...\n";
+            swap((arr + i), (arr + 0));
             found = true;
+            break;
         }
     }
-    if (!found)
-        cout << "Data dengan nama '" << target << "' tidak ditemukan." << endl;
+    if (!found) cout << "Data tidak ditemukan.\n";
 }
 
 void urutkanBerdasarkanID(Hewan *arr, int n)
@@ -92,10 +91,12 @@ void urutkanBerdasarkanID(Hewan *arr, int n)
 
 int fibonacciSearch(Hewan *arr, int n, int target)
 {
-    int fib2 = 0;
-    int fib1 = 1;
-    int fib = 1;
+    // menyiapkan 3 deret Fibonacci awal untuk menentukan rentang pembagian.
+    int fib2 = 0; // F(k-2)
+    int fib1 = 1; // F(k-1)
+    int fib = 1; //F(k)
 
+    // looping ini mencari bilangan Fibonacci terkecil yang lebih besar atau sama dengan jumlah elemen, dengan tujuan agar tahu ukuran blok data yang akan dibagi.
     while (fib < n)
     {
         fib2 = fib1;
@@ -103,12 +104,24 @@ int fibonacciSearch(Hewan *arr, int n, int target)
         fib = fib1 + fib2;
     }
 
+    // membuat offset untuk menandai batas indeks array bagian kiri yang sudah dibuang.
     int offset = -1;
+    int iterasi = 1;
+
+    // membelah array berdasarkan deret Fibonacci selama ukuran rentang (fib) lebih besar dari 1.
     while (fib > 1)
     {
+        // menentukan indeks yang akan dicek, didapat dari offset + F(k-2). fungsi min() mencegah indeks melebihi batas array.
         int i = min(offset + fib2, n - 1);
+        cout << "[Iterasi " << iterasi++ << "] Indeks: " << i << " (ID: " << (arr + i)->id << ")\n";
+
+        // kondisi jika data langsung ditemukan di indeks i
         if ((arr + i)->id == target)
-            return i;
+        {
+            swap((arr + i), (arr + 0));
+            return 0;
+        }
+        // kondisi jika target lebih besar dari nilai di indeks i, berarti target ada di bagian KANAN array. Kita buang bagian KIRI dengan menggeser offset ke i.lalu deret Fibonacci mundur 1 langkah (dari F(k) menjadi F(k-1)).
         else if ((arr + i)->id < target)
         {
             fib = fib1;
@@ -116,6 +129,7 @@ int fibonacciSearch(Hewan *arr, int n, int target)
             fib2 = fib - fib1;
             offset = i;
         }
+        // kondisi jika target lebih kecil dari nilai di indeks i, berarti target ada di bagian KIRI array. Offset tetap, tapi area pencarian dipersempit, lalu deret Fibonacci mundur 2 langkah (dari F(k) menjadi F(k-2)).
         else
         {
             fib = fib2;
@@ -123,9 +137,11 @@ int fibonacciSearch(Hewan *arr, int n, int target)
             fib2 = fib - fib1;
         }
     }
+    // jika loop selesai tapi masih ada 1 elemen tersisa (fib1 == 1), kita cek elemen yang berada persis setelah batas offset terakhir.
     if (fib1 == 1 && (arr + offset + 1)->id == target)
         return offset + 1;
 
+    // Return -1 menandakan pencarian selesai dan ID target tidak ditemukan
     return -1;
 }
 
@@ -152,19 +168,15 @@ void selectionSort(Hewan *arr, int n)
         for (int j = i + 1; j < n; j++)
         {
             if ((arr + j)->harga < (arr + min_idx)->harga)
-            {
                 min_idx = j;
-            }
         }
         if (min_idx != i)
-        {
             swap((arr + i), (arr + min_idx));
-        }
     }
     cout << "Data berhasil diurutkan berdasarkan Harga Termurah." << endl;
 }
 
-void pushRiwayat(Hewan *stackArr, int *top, Hewan data)
+void push(Hewan *stackArr, int *top, Hewan data)
 {
     if (*top >= MAX - 1)
     {
@@ -175,63 +187,73 @@ void pushRiwayat(Hewan *stackArr, int *top, Hewan data)
     *(stackArr + *top) = data;
 }
 
-void enqueue(Hewan *queueArr, int *rear, Hewan data)
+void pop(Hewan *stackArr, int *top)
 {
-    if (*rear >= MAX - 1)
+    if (*top < 0)
+    {
+        cout << "[Stack Underflow] Riwayat kosong, tidak ada yang bisa dibatalkan." << endl;
+        return;
+    }
+    cout << "=> Tindakan untuk pasien " << (stackArr + *top)->nama << " telah dibatalkan." << endl;
+    (*top)--;
+}
+
+void enqueue(Hewan *queueArr, int *front, int *rear, Hewan data)
+{
+    if ((*rear + 1) % MAX == *front)
     {
         cout << "[Queue Overflow] Antrian sudah penuh!" << endl;
         return;
     }
-    (*rear)++;
+
+    if (*front == -1)
+    {
+        *front = 0;
+    }
+
+    *rear = (*rear + 1) % MAX;
     *(queueArr + *rear) = data;
     cout << "Pasien " << data.nama << " (ID: " << data.id << ") masuk ke antrian." << endl;
 }
 
-void dequeueDanPeriksa(Hewan *queueArr, int *rear, Hewan *stackArr, int *top)
+void dequeue(Hewan *queueArr, int *front, int *rear, Hewan *stackArr, int *top)
 {
-    if (*rear == -1)
+    if (*front == -1)
     {
         cout << "[Queue Underflow] Tidak ada antrian pasien saat ini." << endl;
         return;
     }
 
-    Hewan pasienDipanggil = *(queueArr + 0);
-    cout << "Memanggil Pasien: " << pasienDipanggil.nama << " (ID: " << pasienDipanggil.id << ") untuk diperiksa." << endl;
+    Hewan pasienDipanggil = *(queueArr + *front);
+    cout << "=> Memanggil Pasien: " << pasienDipanggil.nama << " (ID: " << pasienDipanggil.id << ") untuk diperiksa." << endl;
 
-    pushRiwayat(stackArr, top, pasienDipanggil);
-    cout << "Pemeriksaan selesai. Data masuk ke riwayat medis." << endl;
+    push(stackArr, top, pasienDipanggil);
+    cout << "=> Pemeriksaan selesai. Data masuk ke riwayat medis." << endl;
 
-    for (int i = 0; i < *rear; i++)
+    if (*front == *rear)
     {
-        *(queueArr + i) = *(queueArr + i + 1);
+        *front = -1;
+        *rear = -1;
     }
-    (*rear)--;
+    else
+    {
+        *front = (*front + 1) % MAX;
+    }
 }
 
-void popRiwayat(Hewan *stackArr, int *top)
-{
-    if (*top == -1)
-    {
-        cout << "[Stack Underflow] Riwayat kosong, tidak ada yang bisa dibatalkan." << endl;
-        return;
-    }
-    cout << "=> Tindakan untuk pasien " << (stackArr + *top)->nama << " (ID: " << (stackArr + *top)->id << ") telah dibatalkan/dihapus dari riwayat." << endl;
-    (*top)--;
-}
-
-void peek(Hewan *queueArr, int rear, Hewan *stackArr, int top)
+void peek(Hewan *queueArr, int front, Hewan *stackArr, int top)
 {
     cout << "\n=== STATUS SAAT INI ===" << endl;
-    if (rear == -1)
+    if (front == -1)
     {
         cout << "Antrian Terdepan : Kosong" << endl;
     }
     else
     {
-        cout << "Antrian Terdepan : " << (queueArr + 0)->nama << " (ID: " << (queueArr + 0)->id << ")" << endl;
+        cout << "Antrian Terdepan : " << (queueArr + front)->nama << " (ID: " << (queueArr + front)->id << ")" << endl;
     }
 
-    if (top == -1)
+    if (top < 0)
     {
         cout << "Riwayat Terakhir : Kosong" << endl;
     }
@@ -242,23 +264,28 @@ void peek(Hewan *queueArr, int rear, Hewan *stackArr, int top)
     cout << "=======================" << endl;
 }
 
-void tampilAntrian(Hewan *queueArr, int rear)
+void tampilAntrian(Hewan *queueArr, int front, int rear)
 {
-    if (rear == -1)
+    if (front == -1)
     {
         cout << "Antrian kosong!" << endl;
         return;
     }
-    cout << "--- Daftar Antrian Pemeriksaan (Front -> Rear) ---" << endl;
-    for (int i = 0; i <= rear; i++)
+    cout << "--- Daftar Antrian Pemeriksaan ---" << endl;
+    int i = front;
+    int nomor = 1;
+    while (true)
     {
-        cout << i + 1 << "ID: " << (queueArr + i)->id << " | Nama: " << (queueArr + i)->nama << " | Layanan: " << (queueArr + i)->jenisLayanan << endl;
+        cout << nomor++ << ". ID: " << (queueArr + i)->id << " | Nama: " << (queueArr + i)->nama << " | Layanan: " << (queueArr + i)->jenisLayanan << endl;
+        if (i == rear)
+            break;
+        i = (i + 1) % MAX;
     }
 }
 
 void tampilRiwayat(Hewan *stackArr, int top)
 {
-    if (top == -1)
+    if (top < 0)
     {
         cout << "Belum ada riwayat pemeriksaan!" << endl;
         return;
@@ -266,7 +293,7 @@ void tampilRiwayat(Hewan *stackArr, int top)
     cout << "--- Riwayat Pemeriksaan Medis (Terbaru -> Terdahulu) ---" << endl;
     for (int i = top; i >= 0; i--)
     {
-        cout << "ID: " << (stackArr + i)->id << " | Nama: " << (stackArr + i)->nama << " | Layanan: " << (stackArr + i)->jenisLayanan << endl;
+        cout << "- ID: " << (stackArr + i)->id << " | Nama: " << (stackArr + i)->nama << " | Layanan: " << (stackArr + i)->jenisLayanan << endl;
     }
 }
 
@@ -276,6 +303,7 @@ int main()
     int jumlahData = 0;
 
     Hewan queueAntrian[MAX];
+    int frontQueue = -1;
     int rearQueue = -1;
 
     Hewan stackRiwayat[MAX];
@@ -286,12 +314,12 @@ int main()
     do
     {
         cout << "\n=== MENU PAWCARE PETSHOP ===" << endl;
-        cout << "1. Tampil Semua Data" << endl;
-        cout << "2. Tambah Data Baru" << endl;
-        cout << "3. Cari Nama Hewan (Linear Search)" << endl;
-        cout << "4. Cari ID Layanan (Fibonacci Search)" << endl;
-        cout << "5. Urutkan Nama A-Z (Bubble Sort)" << endl;
-        cout << "6. Urutkan Harga Termurah (Selection Sort)" << endl;
+        cout << "1. Tampil Semua Data Database" << endl;
+        cout << "2. Tambah Data Baru ke Database" << endl;
+        cout << "3. Cari Nama Hewan" << endl;
+        cout << "4. Cari ID Layanan" << endl;
+        cout << "5. Urutkan Nama A-Z" << endl;
+        cout << "6. Urutkan Harga Termurah" << endl;
         cout << "7. Daftarkan Pasien ke Antrian (Enqueue)" << endl;
         cout << "8. Panggil Pasien & Catat Riwayat (Dequeue & Push)" << endl;
         cout << "9. Batalkan Riwayat Terakhir (Pop)" << endl;
@@ -346,11 +374,11 @@ int main()
         {
             if (jumlahData == 0)
             {
-                cout << "Data kosong! Tambahkan data terlebih dahulu." << endl;
+                cout << "Database kosong! Tambahkan data ke database (Menu 2) terlebih dahulu." << endl;
                 break;
             }
             int idDaftar;
-            cout << "Masukkan ID hewan yang ingin didaftarkan ke antrian: ";
+            cout << "Masukkan ID hewan yang masuk antrian: ";
             cin >> idDaftar;
 
             bool found = false;
@@ -358,36 +386,35 @@ int main()
             {
                 if ((dataPawcare + i)->id == idDaftar)
                 {
-                    enqueue(queueAntrian, &rearQueue, *(dataPawcare + i));
+                    enqueue(queueAntrian, &frontQueue, &rearQueue, *(dataPawcare + i));
                     found = true;
                     break;
                 }
             }
             if (!found)
-                cout << "ID tidak ditemukan." << endl;
+                cout << "ID tidak ditemukan di database." << endl;
             break;
         }
         case 8:
-            dequeueDanPeriksa(queueAntrian, &rearQueue, stackRiwayat, &topStack);
+            dequeue(queueAntrian, &frontQueue, &rearQueue, stackRiwayat, &topStack);
             break;
         case 9:
-            popRiwayat(stackRiwayat, &topStack);
+            pop(stackRiwayat, &topStack);
             break;
         case 10:
-            peek(queueAntrian, rearQueue, stackRiwayat, topStack);
+            peek(queueAntrian, frontQueue, stackRiwayat, topStack);
             break;
         case 11:
-            tampilAntrian(queueAntrian, rearQueue);
+            tampilAntrian(queueAntrian, frontQueue, rearQueue);
             break;
         case 12:
             tampilRiwayat(stackRiwayat, topStack);
             break;
         case 0:
-            cout << "Terima kasih telah menggunakan layanan Pawcare!\n";
+            cout << "Terima kasih!" << endl;
             break;
         default:
-            cout << "Pilihan tidak valid!\n"
-                 << endl;
+            cout << "Pilihan tidak valid!" << endl;
             break;
         }
     } while (pilihan != 0);
