@@ -180,7 +180,7 @@ void push(Hewan *stackArr, int *top, Hewan data)
 {
     if (*top >= MAX - 1)
     {
-        cout << "[Stack Overflow] Riwayat penuh, tidak bisa mencatat lagi!" << endl;
+        cout << "(Overflow) Riwayat penuh, tidak bisa mencatat lagi!" << endl;
         return;
     }
     (*top)++;
@@ -191,7 +191,7 @@ void pop(Hewan *stackArr, int *top)
 {
     if (*top < 0)
     {
-        cout << "[Stack Underflow] Riwayat kosong, tidak ada yang bisa dibatalkan." << endl;
+        cout << "(Underflow) Riwayat kosong, tidak ada yang bisa dibatalkan." << endl;
         return;
     }
     cout << "=> Tindakan untuk pasien " << (stackArr + *top)->nama << " telah dibatalkan." << endl;
@@ -202,7 +202,7 @@ void enqueue(Hewan *queueArr, int *front, int *rear, Hewan data)
 {
     if ((*rear + 1) % MAX == *front)
     {
-        cout << "[Queue Overflow] Antrian sudah penuh!" << endl;
+        cout << "(Overflow) Antrian sudah penuh!" << endl;
         return;
     }
 
@@ -220,7 +220,7 @@ void dequeue(Hewan *queueArr, int *front, int *rear, Hewan *stackArr, int *top)
 {
     if (*front == -1)
     {
-        cout << "[Queue Underflow] Tidak ada antrian pasien saat ini." << endl;
+        cout << "(Underflow) Tidak ada antrian pasien saat ini." << endl;
         return;
     }
 
